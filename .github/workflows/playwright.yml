@@ -1,0 +1,35 @@
+name: Cerberus UI Tests
+on:
+  workflow_dispatch:
+    inputs:
+      BASE_URL:
+        description: 'Test Environment URL'
+        required: true
+        default: 'https://www.google.com'
+        type: choice
+        options:
+          - https://www.google.com
+jobs:
+  cerberus-test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - name: Install dependencies
+        run: npm install
+        working-directory: ./cerberus
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+        working-directory: ./cerberus
+      - name: Run Playwright tests
+        run: npx playwright test
+        working-directory: ./cerberus
+      - uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: cerberus-report-1
+          path: ./cerberus/test-results/
+          retention-days: 30
